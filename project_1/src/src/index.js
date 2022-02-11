@@ -20,19 +20,8 @@ function defineReactive (data, key, val) {
     })
 }
 
-function Vue (option) {
-    this.data = option.data
-    console.log(this)
-    defineReactive(this.data, 'title', 'users')
-    new Watcher(this, 'data.title', function (oldVal, newVal) {
-        console.log('===================>oldVal, newVal', oldVal, newVal)
-    })
-    this.data.title = 'phoebe';
-}
-
-const vue = new Vue({
-    data: {
-      title: 'users'
-    }
+window.testName = '';
+defineReactive(window, 'testName', 'Tom')
+new Watcher(window, 'testName', function (oldVal, newVal) {
+    console.log('===================>oldVal, newVal', oldVal, newVal)
 })
-
