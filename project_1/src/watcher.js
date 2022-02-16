@@ -1,14 +1,16 @@
+// 依赖
 export default class Watcher {
     constructor (vm, expOrFn, cb) {
         this.vm = vm;
         this.getter = parsePath(expOrFn);
         this.cb = cb;
-        this.value = this.get()
+        this.value = this.get();
     }
 
     get () {
         window.target = this;
-        let value = this.getter.call(this.vm, this.vm);
+        // 获取对象的值，自动触发defineReactive的get方法，此时会把依赖收集起来
+        let value = this.getter.call(this.vm, this.vm); 
         window.target = undefined;
         return value;
     }
@@ -30,7 +32,7 @@ export function parsePath(path) {
     return function (obj) {
         for (let i = 0; i < seqments.length; i++) {
             if (!obj) return;
-            obj = obj[seqments[i]];
+            obj = obj[seqments[i]]; // 通过循环对象的属性值，获取对象的值
         }
         return obj;
     }
