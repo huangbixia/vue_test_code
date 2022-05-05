@@ -1,8 +1,12 @@
+/*
+ * @Description: 说明
+ * @Author: huangbx
+ * @Date: 2022-02-28 22:03:10
+ */
 import { def } from './util';
 
 const arrayProto = Array.prototype;
 export const arrayMethods = Object.create(arrayProto);
-
 [
     'push',
     'pop',
@@ -17,6 +21,17 @@ export const arrayMethods = Object.create(arrayProto);
     def(arrayMethods, method,  function mutator (...args) {
         const result = original.apply(this, args);
         const ob = this.__ob__;
+        let inserted;
+        switch (method) {
+            case 'push':
+            case 'unshift': 
+                inserted = args;
+                break;
+            case 'splice':
+                inserted = args.splice(2)
+                break;        
+        }
+        if (inserted) ob.observeArray(inserted)
         ob.dep.notify(); // 向依赖发送消息
         return result;
     })

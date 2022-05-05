@@ -1,3 +1,9 @@
+/*
+ * @Description: 说明
+ * @Author: huangbx
+ * @Date: 2022-02-28 22:03:15
+ */
+let uid = 0;
 
 function remove(arr, item) {
     if (arr.length) {
@@ -10,6 +16,7 @@ function remove(arr, item) {
 
 export default class Dep {
     constructor() {
+        this.id = uid++;
         this.subs = [];
     }
     // 收集依赖
@@ -18,13 +25,17 @@ export default class Dep {
     }
     // 移除依赖
     removeSub(sub) {
-        remove(this.subs, sub);
+        const index = this.subs.indexOf(sub);
+        if (index > -1) {
+            return this.subs.splice(index, 1);
+        }
     }
 
     // 发起收集依赖
     depend() {
         if (window.target) {
-            this.addSub(window.target);
+            // this.addSub(window.target);
+            window.target.addDep(this);
         }
     }
 

@@ -1,12 +1,39 @@
+/*
+ * @Description: 说明
+ * @Author: huangbx
+ * @Date: 2022-02-28 22:03:19
+ */
 import Dep from "./dep";
-import arrayMethods from './arrayMethods';
-import { def } from './util';
+import { arrayMethods } from './arrayMethods';
+import { def, isObject, hasOwn } from './util';
+
+
+
+// 检查 __proto是否可用
+const hasProto = '__proto__' in {};
+console.log(arrayMethods)
+const arrayKes = Object.getOwnPropertyNames(arrayMethods);
+
+// 直接覆盖原型
+function protoAugment (target, src, keys) {
+    target.__proto__ = src;
+}
+
+// 在数组挂在方法
+function copyAugment (target, src, keys) {
+    // 因为当访问一个对象的方法时，只有其自身不存在这个方法，才会去它的原型上找这个方法。
+    for (let i = 0, l = keys.length; i < l; i++) {
+        const key = keys[i];
+        defineReactive(target, key, src[key]);
+    }
+}
+
 /**
  * 尝试为value创建一个Observe实例
  * 如果创建成功，直接返回新创建的Observe实例
  * 如果value已经存在一个Observe实例，则直接返回它
  */
-export function observe (value, asRootData) {
+ function observe (value, asRootData) {
     if (!isObject(value)) {
         return;
     }
@@ -20,9 +47,8 @@ export function observe (value, asRootData) {
 }
 
 /*
- * 1、Array在getter中收集依赖，在拦截器中触发依赖
+ * Array在getter中收集依赖，在拦截器中触发依赖
 */
-
 function defineReactive (data, key, val) {
     
     if (typeof val === 'object') {
@@ -52,23 +78,6 @@ function defineReactive (data, key, val) {
     })
 }
 
-// 检查 __proto是否可用
-const hasProto = '__proto__' in {};
-const arrayKes = Object.getOwnPropertyNames(arrayMethods);
-
-// 直接覆盖原型
-function protoAugment (target, src, keys) {
-    target.__proto__ = src;
-}
-
-// 在数组挂在方法
-function copyAugment (target, src, keys) {
-    // 因为当访问一个对象的方法时，只有其自身不存在这个方法，才会去它的原型上找这个方法。
-    for (let i = 0, l = keys.length; i < l; i++) {
-        const key = keys[i];
-        defineReactive(target, key, src[key]);
-    }
-}
 
 export default class Observer {
     constructor (value) {
@@ -77,10 +86,18 @@ export default class Observer {
         // 所有被侦测了变化的数据身上都会有一个 __ob__属性来表示它们是响应式的
         def(value, '__ob__', this);
         if (Array.isArray(value)) {
-            const augment = hasProto ? protoAugment : copyAugment;
-            augment(value, arrayMethods, arrayKes);
+            // const augment = hasProto ? protoAugment : copyAugment;
+            // augment(value, arrayMethods, arrayKes);
+            this.observeArray(value)
         } else {
             this.walk(value);
+        }
+    }
+
+    // 侦测Array的每一项
+    observeArray (items) {
+        for (let i = 0, l = items.length; i < l; i++) {
+            observe(items[i]);
         }
     }
     /*
